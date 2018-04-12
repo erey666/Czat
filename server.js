@@ -33,7 +33,7 @@ var server = http.createServer(function (req, res) {
           res.write(data);
           res.end();
         });
-      } 
+      }
       else {
         res.writeHead(404, {
           "Content-Type": "text/html"
@@ -47,7 +47,7 @@ var server = http.createServer(function (req, res) {
         sluchaPool(req, res);
       }
       else if (req.url == "/wysylaj") {
-        odbieranie(req, res)        
+        odbieranie(req, res)
       }
       break;
   }
@@ -63,7 +63,7 @@ function sluchaPool(req, res) {
 
   req.on("end", function (data) {
     czlonek.push(res)
-    var finish = allData;    
+    var finish = allData;
   });
 }
 function sprawdzPool() {
@@ -87,13 +87,13 @@ function odbieranie(req, res) {
       przychodzacyDiv.shift()
     }
     for (i = 0; i < czlonek.length; i++) {
-      let wiad = przychodzacyDiv[przychodzacyDiv.length - 1];      
+      let wiad = przychodzacyDiv[przychodzacyDiv.length - 1];
       czlonek[i].end(wiad);
     }
     res.end()
   })
 }
 
-server.listen(3000, function () {
+server.listen(process.env.PORT, function () {
   console.log("Super serwerek komunikatorerk w koncu działa");
 });
