@@ -1,0 +1,154 @@
+<html>
+
+<head>
+	<meta charset="utf-8" />
+	<style>
+		#rozmowa {
+			width: 400px;
+			height: 60vh;
+			border-bottom: 1px black solid;
+			overflow-y: auto;
+			word-wrap: break-word;
+		}
+
+		#wiadomosc {
+			width: 400px;
+			height: 20vh;
+			resize: none;
+			border: none;
+		}
+
+		#root {
+			border: 1px black solid;
+			width: 400px;
+		}
+
+		.tyl {
+			background-color: rgba(255, 255, 255, 0.5);
+			border-radius: 5px;
+		}
+
+		.czas {
+			color: #444444;
+			font-size: 10px;
+			padding-left: 4px;
+		}
+
+		.blok {
+			border: 1px solid black;
+			border-radius: 10px;
+			box-shadow: 2px 2px 2px gray;
+			margin: 5px;
+			padding: 5px;
+		}
+
+		strong {
+			font-size: 15px;
+			color: black;
+			padding: 2px;
+			padding-right: 25%;
+		}
+
+		.tekst {
+			padding-left: 4px;
+			padding-bottom: 4px;
+		}
+	</style>
+	<script src="https://code.jquery.com/jquery-1.11.3.js"></script>
+	<link href="jquery.cssemoticons.css" media="screen" rel="stylesheet" type="text/css" />
+	<script src="jquery.cssemoticons.js" type="text/javascript"></script>	
+	<script>		
+
+		var nick = prompt("Podaj swój nick: ");
+		while (nick == "") {
+			nick = prompt("Podaj swój nick: ");
+		}
+		while (nick == null) {
+			nick = prompt("Podaj swój nick: ");
+		}
+
+		var kolorek = "#" + ((1 << 24) * Math.random() | 0).toString(16)
+		if (kolorek.length < 7) kolorek += "0"
+
+		document.addEventListener("DOMContentLoaded", function (event) {
+
+			enter = document.getElementById('wiadomosc')
+			var rozmowa = document.getElementById('rozmowa')
+
+			enter.addEventListener('keyup', function (e) {
+				if (e.keyCode == 13) wyslij()
+				e.preventDefault()
+			})
+
+			function poll() {
+				$.ajax({
+					method: 'POST',
+					url: "/dzialaj",
+					success: poll,
+				}).complete(function (wiad) {
+					if (wiad.responseText) {
+						$("#rozmowa").html($("#rozmowa").html() + wiad.responseText)
+						$('.tekst').emoticonize();
+					}
+				});
+			}
+			function wyslijWiadomosc(paczka) {
+				$.ajax({
+					method: "POST",
+					url: "wysylaj",
+					data: paczka,
+					success: function (data) {
+					}
+				})
+			}
+
+
+
+			function wyslij() {
+				if (enter.value.length != 1) {
+					var tyl = document.createElement('div')
+					var data = new Date().toString().substring(16, 21);
+					var czas = document.createElement('div')
+					czas.classList.add("czas")
+					czas.innerHTML = data + ", " + "<strong>" + nick + ":</strong>" + '<hr>';
+					var tekst = document.createElement('div')
+					tekst.innerHTML = enter.value;
+					tekst.classList.add("tekst")
+					var blok = document.createElement('div')
+					var poj = document.createElement('div')
+					blok.appendChild(tyl)
+					tyl.appendChild(czas)
+					tyl.appendChild(tekst)
+					tyl.classList.add("tyl")
+					blok.classList.add("blok")
+					$(blok).css("background-color", kolorek)
+					poj.appendChild(blok)
+					$("#wiadomosc").val("")
+					var paczka = poj.innerHTML.toString()
+					//var paczka = {
+					//		wiad:poj.innerHTML.toString()
+					//	}
+
+					//rozmowa.innerHTML += paczka
+					wyslijWiadomosc(paczka)
+
+				}
+				else {
+					$("#wiadomosc").val("")
+				}
+
+			}
+			poll()
+
+		});
+	</script>
+</head>
+
+<body>
+	<div id="root">
+		<div id="rozmowa"></div>
+		<textarea name="name" id="wiadomosc"></textarea>
+	</div>
+</body>
+
+</html>
